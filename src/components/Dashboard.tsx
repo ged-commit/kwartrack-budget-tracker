@@ -189,12 +189,6 @@ export default function Dashboard({
                 </div>
               </div>
 
-              <div className="flex justify-center gap-1.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-primary' : 'bg-slate-400'}`} />
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
-              </div>
-
               <div className={`h-[1px] w-full my-2 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
 
               {/* SIDEBAR ACTION BUTTONS */}
