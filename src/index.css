@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geist:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 355 100% 97.3%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 142 76% 36%;
+
+    --radius: 1rem;
+
+    /* Dashboard Header Inversion for Light Theme (Dark Header) */
+    --dash-header-bg: 0 0% 3.9%;
+    --dash-header-text: 0 0% 98%;
+    --dash-header-muted: 0 0% 63.9%;
+    --dash-balance: 0 0% 3.9%;
+
+    /* Custom tokens */
+    --gold: 46 65% 52%;
+    --gold-dim: 46 45% 35%;
+    --gold-glow: 46 80% 60%;
+    --forest: 155 58% 10%;
+    /* Glass Variables for Light Theme */
+    /* Real Liquid Glass Variables for Light Theme */
+    --glass-bg: 0 0% 100% / 0.5;
+    --glass-border: 0 0% 0% / 0.08;
+    --glass-reflection: 0 0% 100% / 1;
+    --glass-specular: inset 0 2px 2px rgba(255, 255, 255, 1), inset 0 -1px 2px rgba(0, 0, 0, 0.02);
+    --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark {
+    /* ... existing dark vars ... */
+    --background: 0 0% 3.5%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 142 70% 50%;
+    --primary-foreground: 144 100% 1.5%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 142 70% 50%;
+
+    /* Dashboard Header Inversion for Dark Theme (Light Header) */
+    --dash-header-bg: 0 0% 100%;
+    --dash-header-text: 0 0% 3.9%;
+    --dash-header-muted: 0 0% 45.1%;
+    --dash-balance: 0 0% 100%;
+
+    --surface-glass: 0 0% 10%;
+
+    /* Real Liquid Glass Variables for Dark Theme */
+    --glass-bg: 0 0% 100% / 0.05;
+    --glass-border: 0 0% 100% / 0.15;
+    --glass-reflection: 0 0% 100% / 0.4;
+    --glass-specular: inset 0 1.5px 1.5px hsla(0, 0%, 100%, 0.4), inset 0 -0.5px 1.5px hsla(0, 0%, 0%, 0.1);
+    --glass-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased transition-colors duration-500;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--surface-glass) / 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid hsla(var(--glass-border));
+  }
+
+  .glass-frosted {
+    background: hsla(var(--glass-bg));
+    backdrop-filter: blur(48px) saturate(200%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%);
+    @apply rounded-[2rem] overflow-hidden relative transition-all duration-300;
+    border: 1px solid hsla(var(--glass-border));
+    box-shadow:
+      var(--glass-shadow),
+      var(--glass-specular);
+  }
+
+  .glass-button {
+    @apply glass-frosted active:scale-95 cursor-pointer flex items-center justify-center font-bold text-foreground;
+    box-shadow:
+      0 10px 30px -5px rgba(0, 0, 0, 0.1),
+      var(--glass-specular);
+  }
+
+  .glass-button:hover {
+    background: hsla(var(--glass-bg) / 1.2);
+    transform: translateY(-2px);
+    box-shadow:
+      0 20px 40px -10px rgba(0, 0, 0, 0.2),
+      var(--glass-specular);
+  }
+
+  .glass-premium-card {
+    background: hsl(var(--dash-header-bg));
+    @apply relative overflow-hidden backdrop-blur-[64px] saturate-[180%] rounded-[2.5rem] border border-border transition-colors duration-500;
+    box-shadow:
+      inset 0 1px 1px hsla(var(--glass-reflection)),
+      0 30px 60px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .glass-liquid {
+    background: hsla(var(--glass-bg));
+    backdrop-filter: blur(64px) saturate(200%);
+    -webkit-backdrop-filter: blur(64px) saturate(200%);
+    @apply border border-border/50 rounded-[2rem] overflow-hidden;
+    box-shadow:
+      var(--glass-specular),
+      var(--glass-shadow);
+  }
+  
+  .glass-liquid-button {
+    @apply glass-liquid active:scale-95 cursor-pointer flex items-center justify-center font-bold transition-all duration-300;
+  }
+  
+  .glass-liquid-button:hover {
+    background: hsla(var(--glass-bg) / 0.85);
+    transform: translateY(-2px);
+    box-shadow: 
+      var(--glass-shadow), 
+      var(--glass-specular), 
+      0 20px 40px -10px rgba(0, 0, 0, 0.2);
+    border-color: hsla(var(--glass-border) / 1.5);
+  }
+
+  .glass-hover:hover {
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-color: hsl(var(--gold) / 0.3);
+  }
+
+  .glass-gold {
+    background: linear-gradient(135deg,
+        hsl(var(--gold) / 0.1),
+        transparent 60%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid hsl(var(--gold) / 0.15);
+  }
+
+  .gold-text {
+    color: hsl(var(--primary));
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 20px hsl(var(--gold) / 0.3),
+      0 0 40px hsl(var(--gold) / 0.1);
+  }
+
+  .shadow-forest {
+    box-shadow: 0 12px 32px -8px hsl(150 50% 4% / 0.6),
+      0 4px 16px -4px hsl(150 50% 4% / 0.3);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-display {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    letter-spacing: -0.04em;
+  }
+
+  .section-label {
+    @apply text-xs font-medium tracking-widest uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .card-header {
+    background: linear-gradient(to right, #4ade80, #fbbf24);
+    width: 100%;
+    @apply border-b border-white/10;
+  }
+
+  .bottom-fade-overlay {
+    @apply fixed bottom-0 left-0 right-0 h-32 pointer-events-none z-[90] md:hidden;
+    background: linear-gradient(to top,
+        hsl(var(--background)) 0%,
+        hsl(var(--background)) 20%,
+        transparent 100%);
+  }
+
+  .bg-deep-dark {
+    background-color: #0d0d0d;
+  }
+
+  .glass-card-dark {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    @apply rounded-3xl overflow-hidden;
+  }
+
+  .table-row-hover:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .status-badge {
+    @apply px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border;
+  }
+
+  .status-completed {
+    @apply bg-emerald-500/10 text-emerald-400 border-emerald-500/20;
+  }
+
+  .status-processing {
+    @apply bg-amber-500/10 text-amber-400 border-amber-500/20;
+  }
+
+  .status-failed {
+    @apply bg-rose-500/10 text-rose-400 border-rose-500/20;
+  }
+}
