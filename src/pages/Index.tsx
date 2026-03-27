@@ -83,7 +83,7 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] md:flex w-full overflow-hidden">
+    <div className="min-h-screen app-bg-gradient md:flex w-full overflow-hidden">
       <SideNav
         active={tab}
         onNavigate={setTab}
@@ -118,12 +118,19 @@ export default function Index() {
             notifications={notifications}
             settings={settings}
             onAddClick={(type) => openAddModal(type || 'expense')}
-            onGoalsClick={() => { setVaultSubTab('goals'); setTab('planning'); }}
-            onDebtClick={() => { setVaultSubTab('debts'); setTab('planning'); }}
+            onGoalsClick={() => {
+              if (window.innerWidth >= 768) setTab('goals');
+              else { setVaultSubTab('goals'); setTab('planning'); }
+            }}
+            onDebtClick={() => {
+              if (window.innerWidth >= 768) setTab('debts');
+              else { setVaultSubTab('debts'); setTab('planning'); }
+            }}
             onBudgetsUpdate={setBudgets}
             onNotificationsUpdate={setNotifications}
             onSettingsClick={() => setTab('settings')}
             onWalletsClick={() => setTab('wallet')}
+            onHistoryClick={() => setTab('history')}
           />
         )}
         {tab === 'wallet' && (
@@ -148,7 +155,7 @@ export default function Index() {
           </div>
         )}
         {tab === 'planning' && (
-          <div className="md:hidden">
+          <div className="flex-1 w-full">
             <PlanningView
               initialTab={vaultSubTab}
               goals={goals}

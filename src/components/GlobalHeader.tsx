@@ -39,12 +39,6 @@ export default function GlobalHeader({ settings, onSettingsClick, onNotifsClick,
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500" />
           )}
         </button>
-        <button
-          onClick={onSettingsClick}
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors border ${isDark ? 'bg-white/5 text-white/40 border-white/5 hover:text-white/70' : 'bg-white text-slate-400 border-slate-200 shadow-sm hover:text-slate-600'}`}
-        >
-          <Settings size={20} />
-        </button>
       </div>
     </header>
   );

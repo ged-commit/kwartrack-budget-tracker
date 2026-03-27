@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Plus, Trash2, CreditCard, ArrowDownRight, ArrowUpRight, Calendar, Info } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Plus, Trash2, CreditCard, ArrowDownRight, ArrowUpRight, Calendar, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
 import { Debt, Wallet, formatCurrency, generateId, getWalletIcon } from '@/lib/store';
@@ -19,7 +20,7 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
-  
+
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedDebtId, setSelectedDebtId] = useState<string | null>(null);
   const [payAmount, setPayAmount] = useState('');
@@ -59,7 +60,6 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
       return;
     }
 
-    // Update Debt
     onUpdate(debts.map(d => {
       if (d.id !== selectedDebtId) return d;
       return {
@@ -69,8 +69,7 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
       };
     }));
 
-    // Update Wallet
-    onUpdateWallets(wallets.map(w => 
+    onUpdateWallets(wallets.map(w =>
       w.id === selectedWalletId ? { ...w, balance: w.balance - amt } : w
     ));
 
@@ -153,8 +152,8 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${filter === f 
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
+                  className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all ${filter === f
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                     : 'text-zinc-400 hover:text-white hover:bg-white/5'
                     }`}
                 >
@@ -196,7 +195,7 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
                           {formatCurrency(Math.max(remaining, 0))}
                         </p>
                       </div>
-                       <div className="text-right">
+                      <div className="text-right">
                         <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground opacity-50 mb-0.5">Total</p>
                         <p className="text-sm font-bold text-muted-foreground/60 tabular-nums">
                           {formatCurrency(d.originalAmount)}
@@ -220,7 +219,7 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
                           {new Date(d.dueDate).toLocaleDateString()}
                         </div>
                       )}
-                       <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#4ade80] bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-500/10">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#4ade80] bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-500/10">
                         <CreditCard size={12} />
                         {Math.round(pct)}% paid
                       </div>
@@ -246,123 +245,121 @@ export default function DebtView({ debts, wallets, onUpdate, onUpdateWallets }: 
         </div>
       </div>
 
-      <AnimatePresence>
-        {(showAdd || showPayModal) && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => { setShowAdd(false); setShowPayModal(false); }}
-              className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm"
-            />
-            <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 pointer-events-none">
+      {createPortal(
+        <AnimatePresence>
+          {(showAdd || showPayModal) && (
+            <div key="debt-modal-container" className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none text-left">
+              <motion.div
+                key="debt-backdrop"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => { setShowAdd(false); setShowPayModal(false); }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+              />
+              
               {showAdd && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="w-full max-w-sm p-6 rounded-[2rem] glass-liquid border border-white/10 shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"
-                >
-                  <h3 className="font-display font-bold text-foreground text-lg mb-4">New Debt</h3>
-
-                  <div className="overflow-y-auto space-y-4 pr-1 pb-4 custom-scrollbar">
-                    <div className="flex p-1 rounded-xl glass-frosted">
-                      {(['owe', 'owed'] as const).map(t => (
-                        <button key={t} onClick={() => setDebtType(t)}
-                          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${debtType === t 
-                            ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                            : 'text-muted-foreground hover:text-foreground'
-                            }`}>
-                          {t === 'owe' ? 'I Owe' : 'Owed to Me'}
-                        </button>
-                      ))}
+                <div key="debt-add-wrapper" className="fixed inset-0 flex items-center justify-center md:p-4 pointer-events-none z-10">
+                  <motion.div
+                    key="debt-add-modal"
+                    initial={{ opacity: 0, y: '100%' }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: '100%' }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    className="fixed inset-0 md:relative md:inset-auto w-full h-full md:w-full md:h-auto md:max-w-sm bg-background md:bg-background/80 md:backdrop-blur-2xl md:rounded-[3rem] border-none md:border md:border-foreground/5 shadow-2xl overflow-hidden flex flex-col md:max-h-[90vh] pointer-events-auto"
+                  >
+                    <div className="flex items-center justify-between px-8 py-8 pb-4 shrink-0">
+                      <h3 className="font-display font-black text-foreground text-xl">New Debt</h3>
+                      <button onClick={() => setShowAdd(false)} className="p-2 rounded-full hover:bg-foreground/5 text-foreground transition-colors">
+                        <X size={20} />
+                      </button>
                     </div>
 
-                    <input type="text" placeholder="Name (e.g. Car repair loan)" value={name} onChange={e => setName(e.target.value)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary transition-all border border-white/5" />
-                    <input type="text" placeholder="Person / Organization" value={person} onChange={e => setPerson(e.target.value)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary transition-all border border-white/5" />
-                    <input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary transition-all border border-white/5" />
-                    <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-muted-foreground text-base font-semibold outline-none focus:ring-1 focus:ring-primary transition-all [color-scheme:dark] border border-white/5" />
-                    <textarea placeholder="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)}
-                      className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary transition-all resize-none h-24 border border-white/5" />
-                  </div>
+                    <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-6 custom-scrollbar no-scrollbar">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Debt Type</label>
+                        <div className="flex p-1 rounded-2xl bg-foreground/5 border border-foreground/5">
+                          {(['owe', 'owed'] as const).map(t => (
+                            <button key={t} onClick={() => setDebtType(t)} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${debtType === t ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-zinc-500 hover:text-foreground'}`}>
+                              {t === 'owe' ? 'I Owe' : 'Owed to Me'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                  <div className="flex gap-3 pt-4 mt-auto border-t border-white/5">
-                    <button onClick={() => setShowAdd(false)} className="flex-1 py-3 rounded-xl bg-foreground/5 text-muted-foreground text-sm font-bold hover:bg-foreground/10 transition-colors">Cancel</button>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={handleAdd} className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-lg shadow-primary/10">Create Debt</motion.button>
-                  </div>
-                </motion.div>
-              )}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Debt Name</label>
+                        <input type="text" placeholder="e.g. Car repair loan" value={name} onChange={e => setName(e.target.value)} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all placeholder:text-muted-foreground/30" />
+                      </div>
 
-              {showPayModal && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="w-full max-w-sm p-6 rounded-[2rem] glass-liquid border border-white/10 shadow-2xl pointer-events-auto space-y-4"
-                >
-                  <h3 className="font-display font-bold text-foreground text-lg">Pay Debt</h3>
-                  <p className="text-xs text-muted-foreground">Select an account and enter the amount to pay off your debt.</p>
-                  
-                  <div className="space-y-3">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Select Account</label>
-                      <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
-                        {wallets.map(w => (
-                          <button
-                            key={w.id}
-                            onClick={() => setSelectedWalletId(w.id)}
-                            className={`flex justify-between items-center p-3 rounded-xl border transition-all ${
-                              selectedWalletId === w.id 
-                                ? 'bg-amber-400/10 border-amber-400/30 ring-1 ring-amber-400/20' 
-                                : 'bg-white/5 border-white/5 hover:bg-white/10'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="text-lg opacity-80">{getWalletIcon(w.type, 18)}</span>
-                              <div className="text-left">
-                                <p className="text-sm font-bold text-foreground">{w.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{w.type}</p>
-                              </div>
-                            </div>
-                            <p className="text-sm font-bold text-foreground tracking-tight">{formatCurrency(w.balance)}</p>
-                          </button>
-                        ))}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Person</label>
+                        <input type="text" placeholder="e.g. Name" value={person} onChange={e => setPerson(e.target.value)} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all placeholder:text-muted-foreground/30" />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Total Amount</label>
+                        <div className="relative">
+                          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground/30 font-bold text-lg">₱</span>
+                          <input type="number" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} className="w-full py-4 pl-12 pr-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all tabular-nums" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Due Date</label>
+                        <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-sm font-bold outline-none border border-transparent focus:border-primary/20 transition-all [color-scheme:light] dark:[color-scheme:dark]" />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Notes</label>
+                        <textarea placeholder="Details..." value={notes} onChange={e => setNotes(e.target.value)} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all resize-none h-32 placeholder:text-muted-foreground/30" />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Payment Amount</label>
-                      <input
-                        type="number"
-                        placeholder="0.00"
-                        value={payAmount}
-                        onChange={e => setPayAmount(e.target.value)}
-                        className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold placeholder:text-muted-foreground/40 outline-none focus:ring-1 focus:ring-primary transition-all border border-white/5"
-                      />
-                      {parseFloat(payAmount) > (wallets.find(w => w.id === selectedWalletId)?.balance || 0) && (
-                        <p className="text-rose-400 text-[10px] font-bold uppercase tracking-widest pl-1">
-                          ⚠ Exceeds available funds
-                        </p>
-                      )}
+                    <div className="px-8 py-8 pt-0 mt-auto shrink-0">
+                      <motion.button whileTap={{ scale: 0.98 }} onClick={handleAdd} className="w-full py-5 rounded-[2rem] bg-primary text-primary-foreground text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 active:scale-95 transition-all">
+                        Create Debt
+                      </motion.button>
                     </div>
-                  </div>
+                  </motion.div>
+                </div>
+              )}
 
-                  <div className="flex gap-3 pt-2 mt-2 border-t border-white/5 pt-4">
-                    <button onClick={() => setShowPayModal(false)} className="flex-1 py-3 rounded-xl bg-foreground/5 text-muted-foreground text-sm font-bold hover:bg-foreground/10 transition-colors">Cancel</button>
-                    <motion.button 
-                      whileTap={{ scale: 0.96 }} 
-                      onClick={handlePayment}
-                      disabled={!payAmount || parseFloat(payAmount) <= 0 || parseFloat(payAmount) > (wallets.find(w => w.id === selectedWalletId)?.balance || 0)}
-                      className="flex-1 py-3 rounded-xl bg-amber-400 text-black text-sm font-bold shadow-lg shadow-amber-500/10 disabled:opacity-30 disabled:grayscale transition-all"
-                    >
-                      Confirm Payment
-                    </motion.button>
-                  </div>
-                </motion.div>
+              {showPayModal && (
+                <div key="debt-pay-wrapper" className="fixed inset-0 flex items-center justify-center p-4 pointer-events-none z-10">
+                  <motion.div
+                    key="debt-pay-modal"
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="w-full max-w-sm p-6 rounded-[2rem] glass-liquid border border-white/10 shadow-2xl pointer-events-auto space-y-4"
+                  >
+                    <h3 className="font-display font-bold text-foreground text-lg">Pay Debt</h3>
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Select Account</label>
+                        <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
+                          {wallets.map(w => (
+                            <button key={w.id} onClick={() => setSelectedWalletId(w.id)} className={`flex justify-between items-center p-3 rounded-xl border transition-all ${selectedWalletId === w.id ? 'bg-amber-400/10 border-amber-400/30 ring-1 ring-amber-400/20' : 'bg-white/5 border-white/5'}`}>
+                              <div className="flex items-center gap-3"><span className="text-lg opacity-80">{getWalletIcon(w.type, 18)}</span><div className="text-left"><p className="text-sm font-bold text-foreground">{w.name}</p><p className="text-[10px] text-muted-foreground">{w.type}</p></div></div>
+                              <p className="text-sm font-bold text-foreground tracking-tight">{formatCurrency(w.balance)}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Payment Amount</label>
+                        <input type="number" placeholder="0.00" value={payAmount} onChange={e => setPayAmount(e.target.value)} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" />
+                      </div>
+                    </div>
+                    <div className="flex gap-3 pt-4 border-t border-white/5">
+                      <button onClick={() => setShowPayModal(false)} className="flex-1 py-3 rounded-xl bg-foreground/5 text-muted-foreground text-sm font-bold">Cancel</button>
+                      <motion.button whileTap={{ scale: 0.96 }} onClick={handlePayment} disabled={!payAmount || parseFloat(payAmount) <= 0 || parseFloat(payAmount) > (wallets.find(w => w.id === selectedWalletId)?.balance || 0)} className="flex-1 py-3 rounded-xl bg-amber-400 text-black text-sm font-bold shadow-lg shadow-amber-500/10 transition-all">Confirm</motion.button>
+                    </div>
+                  </motion.div>
+                </div>
               )}
             </div>
-          </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

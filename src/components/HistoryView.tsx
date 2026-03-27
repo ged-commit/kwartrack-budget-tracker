@@ -121,29 +121,31 @@ export default function HistoryView({ transactions, wallets, onBack }: Props) {
     const cats = t.type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
     const cat = cats.find(c => c.id === t.category);
     const wallet = wallets.find(w => w.id === t.walletId);
+    const date = new Date(t.date);
+    const formattedDate = `${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}, ${date.getFullYear()}`;
 
     return (
-      <div className="glass-liquid p-4 flex items-center justify-between border border-white/10 shadow-lg">
+      <div className="flex justify-between items-center p-4 rounded-3xl bg-foreground/5 hover:bg-foreground/10 transition-colors group cursor-default">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-2xl bg-foreground/5 flex items-center justify-center text-xl">
-            {cat?.icon ?? <Package size={20} />}
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-black/10 dark:bg-white/5 flex items-center justify-center text-xl shadow-inner">
+            {cat?.icon ?? <Package size={18} />}
           </div>
-          <div>
-            <p className="text-sm font-bold text-foreground">{t.label || cat?.label}</p>
+          <div className="flex flex-col">
+            <span className="font-bold text-foreground text-[15px]">{t.label || cat?.label || 'Transaction'}</span>
             <div className="flex items-center gap-2 mt-0.5">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
-                {t.type}
-              </p>
+              <span className="text-xs text-muted-foreground capitalize font-medium opacity-80">{t.type}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">•</span>
+              <span className="text-[10px] font-bold text-muted-foreground/50">{wallet?.name || 'Unknown'}</span>
             </div>
           </div>
         </div>
-        <div className="text-right flex flex-col items-end gap-1">
-          <div className="flex items-center justify-center text-[10px] font-bold text-muted-foreground/60 px-2 py-0.5 w-fit">
-            <span>{wallet?.name || 'Unknown'}</span>
-          </div>
-          <p className={`font-display text-lg font-black tabular-nums ${t.type === 'expense' ? 'text-destructive' : 'text-primary'}`}>
-            {t.type === 'expense' ? '-' : '+'}{formatCurrency(t.amount)}
-          </p>
+        <div className="flex flex-col items-end">
+          <span className={`font-bold text-[15px] font-display tabular-nums tracking-tight ${t.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
+            {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+          </span>
+          <span className="text-[11px] text-muted-foreground font-medium mt-1 opacity-70">
+            {formattedDate}
+          </span>
         </div>
       </div>
     );

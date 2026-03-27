@@ -117,12 +117,11 @@ export default function WalletView({
 
   // Touch swipe
   const onTouchStart = (e: React.TouchEvent) => {
-    // Mobile uses Y, Desktop uses X (as per request)
-    touchStartPos.current = window.innerWidth >= 1024 ? e.touches[0].clientX : e.touches[0].clientY;
+    touchStartPos.current = e.touches[0].clientX;
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartPos.current === null) return;
-    const currentPos = window.innerWidth >= 1024 ? e.changedTouches[0].clientX : e.changedTouches[0].clientY;
+    const currentPos = e.changedTouches[0].clientX;
     const diff = touchStartPos.current - currentPos;
     if (Math.abs(diff) > 40) goTo(activeIdx + (diff > 0 ? 1 : -1));
     touchStartPos.current = null;
@@ -152,72 +151,19 @@ export default function WalletView({
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0a] text-white' : 'text-slate-900'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
 
       {/* ---------------- MOBILE LAYOUT ---------------- */}
-      <div className="lg:hidden px-6 pt-8 pb-48 space-y-6 max-w-lg mx-auto">
-        <div className="flex justify-between items-center px-2">
+      <div className="lg:hidden pt-8 pb-48 space-y-6 max-w-lg mx-auto overflow-x-hidden w-full">
+        <div className="flex justify-between items-center px-8">
           <div>
             <h1 className="font-display text-4xl font-bold text-foreground">Accounts</h1>
             <p className="text-sm text-muted-foreground">Manage your accounts and money.</p>
           </div>
         </div>
 
-        {/* Premium Balance Card (Mobile) */}
-        <div className="glass-premium-card p-8 min-h-[220px] flex flex-col justify-between relative group overflow-hidden">
-          <div className="flex justify-between items-start relative z-10">
-            <div className="flex items-center gap-2">
-              <img src={logo} alt="Kwartrack" className="h-8 w-auto" />
-              <span className="font-display text-lg font-bold text-[hsl(var(--dash-header-text))] tracking-tight">Kwartrack</span>
-            </div>
-          </div>
-          <div className="relative z-10">
-            <p className="text-xs font-black text-[hsl(var(--dash-header-muted))] opacity-60 uppercase tracking-widest mb-2">Total Balance</p>
-            <div className="flex items-baseline gap-3">
-              <p className="font-display text-6xl font-black text-[hsl(var(--dash-header-text))] tracking-tight tabular-nums">
-                {formatCurrency(totalBalance).replace(/[^\d.,]/g, '').trim()}
-              </p>
-              <span className="text-xl font-bold text-[hsl(var(--dash-header-muted))] opacity-40">PHP</span>
-            </div>
-          </div>
-          <div className="absolute top-0 right-0 h-full w-[60%] opacity-20 pointer-events-none select-none">
-            <img src={squireeImg} alt="" className="w-full h-full object-contain object-right brightness-110" />
-          </div>
-        </div>
-
-        {/* Action Buttons (Mobile) */}
-        <div className="grid grid-cols-3 gap-6 pt-2">
-          <div className="flex flex-col items-center gap-3">
-            <button
-              onClick={() => { impact(); setShowAdd(true); setNewProvider('none'); }}
-              className="w-16 h-16 glass-button rounded-2xl group hover:scale-105 transition-all shadow-lg"
-            >
-              <Plus size={24} className="text-foreground group-hover:scale-110 transition-transform" />
-            </button>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-60">New</span>
-          </div>
-          <div className="flex flex-col items-center gap-3">
-            <button
-              onClick={() => { impact(); setIsDeleteMode(!isDeleteMode); setIsManageMode(false); }}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-300 ${isDeleteMode ? 'bg-rose-500/20 border-rose-500/50 shadow-rose-500/20 shadow-lg' : 'glass-button hover:scale-105'}`}
-            >
-              <Trash2 size={24} className={isDeleteMode ? 'text-rose-400' : 'text-foreground/60'} />
-            </button>
-            <span className={`text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${isDeleteMode ? 'text-rose-400' : 'text-muted-foreground opacity-60'}`}>Remove</span>
-          </div>
-          <div className="flex flex-col items-center gap-3">
-            <button
-              onClick={() => { impact(); setIsManageMode(!isManageMode); setIsDeleteMode(false); }}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-300 ${isManageMode ? 'bg-amber-500/20 border-amber-500/50 shadow-amber-500/20 shadow-lg' : 'glass-button hover:scale-105'}`}
-            >
-              <SettingsIcon size={24} className={isManageMode ? 'text-amber-400' : 'text-foreground/60'} />
-            </button>
-            <span className={`text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${isManageMode ? 'text-amber-400' : 'text-muted-foreground opacity-60'}`}>Manage</span>
-          </div>
-        </div>
-
-        {/* Stack Viewer (Mobile) */}
-        <div className="mt-12 flex flex-col items-center gap-6">
+        {/* Stack Viewer (Mobile Horizontal) */}
+        <div className="mt-8 flex flex-col items-center gap-6 w-full">
           {wallets.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground/40 gap-3">
               <Landmark size={48} strokeWidth={1} />
@@ -227,14 +173,14 @@ export default function WalletView({
             <div className="flex flex-col items-center gap-4 w-full">
               <div
                 ref={viewportRef}
-                className="relative select-none"
-                style={{ width: 320, height: 520 }}
+                className="relative select-none w-full touch-pan-y"
+                style={{ height: 260 }}
                 onTouchStart={onTouchStart}
                 onTouchEnd={onTouchEnd}
               >
                 {wallets.map((w, i) => {
                   const rel = i - activeIdx;
-                  const cfg = getStackConfig(rel);
+                  const cfg = getDesktopStackConfig(rel);
                   const Icon = typeIcons[w.type] || Smartphone;
                   const providerLogo = w.provider && w.provider !== 'none' ? providerLogos[w.provider] : null;
 
@@ -246,14 +192,14 @@ export default function WalletView({
                         position: 'absolute',
                         left: '50%',
                         top: '50%',
-                        width: 340,
-                        transform: `translateX(-50%) translateY(calc(-50% + ${cfg.y}px)) scale(${cfg.scale})`,
+                        width: 310,
+                        transform: `translateX(calc(-50% + ${cfg.x}px)) translateY(-50%) scale(${cfg.scale})`,
                         opacity: cfg.opacity,
                         zIndex: cfg.zIndex,
-                        boxShadow: cfg.shadow === 'none' ? 'none' : cfg.shadow,
-                        transformOrigin: 'top center',
+                        boxShadow: cfg.shadow,
+                        transformOrigin: 'center center',
                         willChange: 'transform, opacity',
-                        transition: 'transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.55s, box-shadow 0.55s',
+                        transition: 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.6s',
                         borderRadius: 24,
                         cursor: i !== activeIdx ? 'pointer' : 'default',
                         overflow: 'hidden',
@@ -336,7 +282,50 @@ export default function WalletView({
             </div>
           )}
         </div>
+
+        {/* Action Buttons (Mobile) - Moved below stack */}
+        <div className="grid grid-cols-3 gap-6 pt-6 px-4">
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={() => { impact(); setShowAdd(true); setNewProvider('none'); }}
+              className="w-16 h-16 glass-button rounded-2xl group hover:scale-105 transition-all shadow-lg min-h-0"
+            >
+              <Plus size={24} className="text-foreground group-hover:scale-110 transition-transform" />
+            </button>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] opacity-60">New</span>
+          </div>
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={() => { impact(); setIsDeleteMode(!isDeleteMode); setIsManageMode(false); }}
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-300 min-h-0 ${isDeleteMode ? 'bg-rose-500/20 border-rose-500/50 shadow-rose-500/20 shadow-lg' : 'glass-button hover:scale-105'}`}
+            >
+              <Trash2 size={24} className={isDeleteMode ? 'text-rose-400' : 'text-foreground/60'} />
+            </button>
+            <span className={`text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${isDeleteMode ? 'text-rose-400' : 'text-muted-foreground opacity-60'}`}>Remove</span>
+          </div>
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={() => { impact(); setIsManageMode(!isManageMode); setIsDeleteMode(false); }}
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-300 min-h-0 ${isManageMode ? 'bg-amber-500/20 border-amber-500/50 shadow-amber-500/20 shadow-lg' : 'glass-button hover:scale-105'}`}
+            >
+              <SettingsIcon size={24} className={isManageMode ? 'text-amber-400' : 'text-foreground/60'} />
+            </button>
+            <span className={`text-[10px] font-bold uppercase tracking-[0.15em] transition-colors ${isManageMode ? 'text-amber-400' : 'text-muted-foreground opacity-60'}`}>Manage</span>
+          </div>
+        </div>
+
+        {/* Mobile Transactions below action buttons */}
+        <div className="mt-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between px-8">
+            <h2 className="text-[12px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">Account Transactions</h2>
+          </div>
+          <TransactionTable
+            transactions={walletTransactions}
+            wallets={wallets}
+          />
+        </div>
       </div>
+
 
       {/* ---------------- DESKTOP LAYOUT ---------------- */}
       <div className="hidden lg:flex flex-col h-full overflow-hidden">
@@ -380,7 +369,7 @@ export default function WalletView({
 
               <div className={`h-[1px] w-full my-2 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
 
-              {/* Account Management Buttons — same style as Dashboard's Income/Expense */}
+              {/* Account Management Buttons */}
               <div className="grid grid-rows-3 gap-4">
                 <button
                   onClick={() => { impact(); setShowAdd(true); setNewProvider('none'); }}

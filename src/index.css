@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 156 12% 95%;
     --foreground: 0 0% 3.9%;
 
     --card: 0 0% 100%;
@@ -58,7 +58,7 @@
 
   .dark {
     /* ... existing dark vars ... */
-    --background: 0 0% 3.5%;
+    --background: 0 0% 2%;
     --foreground: 0 0% 98%;
 
     --card: 0 0% 7%;
@@ -86,11 +86,11 @@
     --input: 0 0% 14.9%;
     --ring: 142 70% 50%;
 
-    /* Dashboard Header Inversion for Dark Theme (Light Header) */
-    --dash-header-bg: 0 0% 100%;
-    --dash-header-text: 0 0% 3.9%;
-    --dash-header-muted: 0 0% 45.1%;
-    --dash-balance: 0 0% 100%;
+    /* Dashboard Header for Dark Theme - black card, white text */
+    --dash-header-bg: 0 0% 5%;
+    --dash-header-text: 0 0% 98%;
+    --dash-header-muted: 0 0% 63.9%;
+    --dash-balance: 0 0% 5%;
 
     --surface-glass: 0 0% 10%;
 
@@ -112,6 +112,27 @@
 }
 
 @layer utilities {
+  .app-bg-gradient {
+    /* Sophisticated multi-point radial gradient to perfectly simulate the mesh-gradient from the reference image */
+    background: 
+      radial-gradient(circle at 0% 0%, #fcfdfd 0%, transparent 70%),
+      radial-gradient(circle at 100% 30%, #f5f9e8 0%, transparent 60%),
+      radial-gradient(circle at 100% 100%, #9db2a3 0%, transparent 70%),
+      radial-gradient(circle at 20% 80%, #dce5e0 0%, transparent 60%),
+      #edf2f0;
+    background-attachment: fixed;
+  }
+
+  .dark .app-bg-gradient {
+    background: 
+      radial-gradient(circle at 0% 0%, #000000 0%, transparent 70%),
+      radial-gradient(circle at 100% 30%, #2a3522 0%, transparent 70%),
+      radial-gradient(circle at 100% 100%, #1e3524 0%, transparent 70%),
+      radial-gradient(circle at 20% 80%, #162720 0%, transparent 70%),
+      #000000;
+    background-attachment: fixed;
+  }
+
   .glass {
     background: hsl(var(--surface-glass) / 0.7);
     backdrop-filter: blur(20px);
@@ -162,17 +183,17 @@
       var(--glass-specular),
       var(--glass-shadow);
   }
-  
+
   .glass-liquid-button {
     @apply glass-liquid active:scale-95 cursor-pointer flex items-center justify-center font-bold transition-all duration-300;
   }
-  
+
   .glass-liquid-button:hover {
     background: hsla(var(--glass-bg) / 0.85);
     transform: translateY(-2px);
-    box-shadow: 
-      var(--glass-shadow), 
-      var(--glass-specular), 
+    box-shadow:
+      var(--glass-shadow),
+      var(--glass-specular),
       0 20px 40px -10px rgba(0, 0, 0, 0.2);
     border-color: hsla(var(--glass-border) / 1.5);
   }

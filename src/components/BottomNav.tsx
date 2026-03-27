@@ -1,4 +1,4 @@
-import { Home, Wallet, Clock, ShoppingCart, LayoutGrid } from 'lucide-react';
+import { Home, Wallet, Clock, ShoppingCart, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface BottomNavProps {
@@ -10,7 +10,7 @@ const tabs = [
   { id: 'home', icon: Home },
   { id: 'wallet', icon: Wallet },
   { id: 'history', icon: Clock },
-  { id: 'planning', icon: LayoutGrid },
+  { id: 'settings', icon: Settings },
 ];
 
 export default function BottomNav({ active, onNavigate }: BottomNavProps) {

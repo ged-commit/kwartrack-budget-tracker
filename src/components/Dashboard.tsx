@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Plus, Minus, Bell, Settings, ArrowRight, Wallet as WalletIcon, ExternalLink } from 'lucide-react';
+import { Plus, Minus, Bell, Settings, ArrowRight, Wallet as WalletIcon, ExternalLink, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
 import BudgetManage from './BudgetManage';
-import RecentTransactions from './RecentTransactions';
 import TransactionTable from './TransactionTable';
 import SpentTodayCard from './SpentTodayCard';
 import MascotGreeting from './MascotGreeting';
@@ -33,12 +32,13 @@ interface DashboardProps {
   onNotificationsUpdate: (n: AppNotification[]) => void;
   onSettingsClick: () => void;
   onWalletsClick: () => void;
+  onHistoryClick: () => void;
 }
 
 export default function Dashboard({
   transactions, wallets, budgets, goals, debts, recurring,
   notifications, settings,
-  onAddClick, onGoalsClick, onDebtClick, onBudgetsUpdate, onNotificationsUpdate, onSettingsClick, onWalletsClick
+  onAddClick, onGoalsClick, onDebtClick, onBudgetsUpdate, onNotificationsUpdate, onSettingsClick, onWalletsClick, onHistoryClick
 }: DashboardProps) {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showMascotBubble, setShowMascotBubble] = useState(false);
@@ -78,69 +78,123 @@ export default function Dashboard({
   const isDark = settings.theme === 'dark';
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0a] text-white' : ' text-slate-900'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
 
       {/* ---------------- MOBILE LAYOUT ---------------- */}
       <div className="md:hidden pb-48 relative transition-colors duration-500 overflow-x-hidden">
-        {/* Inverted "Curtain" Header Section */}
-        <div className={`pb-12 pt-10 px-6 rounded-b-[3.5rem] shadow-2xl transition-colors duration-500 ${isDark ? 'bg-white text-slate-900' : 'bg-[#0d0d0d] text-white'} relative z-10`}>
+        {/* Redesigned Mobile Dashboard Content */}
+        <div className="px-6 pt-10 relative z-10">
+          {/* Header Section */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDark ? 'text-slate-400' : 'text-white/50'}`}>{greeting}</p>
-              <h1 className="font-display text-2xl font-black leading-none">
+              <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{greeting}</p>
+              <h1 className={`font-display text-2xl font-black leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 {settings.userName || 'Kwartrack User'}
               </h1>
             </div>
             <div className="flex gap-2">
-              <button className={`w-10 h-10 flex items-center justify-center relative ${isDark ? 'text-slate-400 hover:text-slate-900' : 'text-white/60 hover:text-white'}`} onClick={() => setShowNotifs(true)}>
+              <button className={`w-10 h-10 flex items-center justify-center relative rounded-xl border ${isDark ? 'bg-white/5 border-white/5 text-slate-400 hover:text-white' : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600 shadow-sm'}`} onClick={() => setShowNotifs(true)}>
                 <Bell size={22} />
                 {unreadCount > 0 && <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-red-500 border-2 border-current" />}
               </button>
-              <button className={`w-10 h-10 flex items-center justify-center ${isDark ? 'text-slate-400 hover:text-slate-900' : 'text-white/60 hover:text-white'}`} onClick={onSettingsClick}>
-                <Settings size={22} />
-              </button>
             </div>
           </div>
 
-          <div className="flex flex-col items-center mb-10">
-            <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 ${isDark ? 'text-slate-400' : 'text-white/40'}`}>Total Balance</p>
-            <div className="flex items-baseline gap-1">
-              <span className="font-display text-5xl font-black tabular-nums tracking-tighter">
-                ₱{Math.floor(totalBalance).toLocaleString()}
-              </span>
-              <span className={`font-display text-3xl font-black opacity-30 tabular-nums`}>
-                .{(totalBalance % 1).toFixed(2).split('.')[1]}
-              </span>
+          {/* Premium Balance Card */}
+          <div className="glass-premium-card p-8 min-h-[220px] flex flex-col justify-between relative group overflow-hidden mb-8 shadow-2xl">
+            <div className="flex justify-between items-start relative z-10">
+              <div className="flex items-center gap-2 text-white">
+                <img src={logo} alt="Kwartrack" className="h-6 w-auto" />
+                <span className="font-display text-base font-bold tracking-tight">Kwartrack</span>
+              </div>
+            </div>
+            <div className="relative z-10">
+              <p className="text-xs font-black uppercase tracking-widest mb-2 opacity-60 text-white/60">Total Balance</p>
+              <div className="flex items-baseline gap-3">
+                <p className="font-display text-5xl font-black tracking-tight tabular-nums text-white">
+                  {formatCurrency(totalBalance).replace(/[^\d.,]/g, '').trim()}
+                </p>
+                <span className="text-xl font-bold opacity-40 text-white/40">PHP</span>
+              </div>
+            </div>
+            <div className="absolute top-0 right-0 h-full w-[60%] opacity-20 pointer-events-none select-none">
+              <img src={squireeMascotWallet} alt="" className="w-full h-full object-contain object-right brightness-110" />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2 mb-4">
             <button
               onClick={() => onAddClick('income')}
-              className="py-5 rounded-full bg-white/10 border border-white/5 font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+              className={`py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 glass-liquid-button ${isDark ? 'text-white' : 'text-slate-900 border-slate-200 shadow-sm'}`}
             >
               Income
             </button>
             <button
               onClick={() => onAddClick('expense')}
-              className="py-5 rounded-full bg-white/10 border border-white/5 font-bold text-xs uppercase tracking-widest hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+              className={`py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 glass-liquid-button ${isDark ? 'text-white' : 'text-slate-900 border-slate-200 shadow-sm'}`}
             >
               Expense
             </button>
           </div>
-        </div>
 
-        <div className="relative z-0 space-y-8 px-6 pt-10">
-          <SpentTodayCard
-            spentToday={spentToday}
-            weeklyBudget={weeklyBudget}
-            weeklySpent={weeklySpent}
-            largestExpenseLabel={largestExpenseLabel}
-            transactionsToday={todayTxns.length}
-            currencySymbol="₱"
-          />
-          <p className="section-label">Recent Transactions</p>
-          <RecentTransactions transactions={transactions.slice(-5).reverse()} wallets={wallets} />
+          <div className="space-y-4">
+            {/* Quick Access Section */}
+            <div className="glass-liquid p-6 relative group overflow-hidden shadow-xl mb-4">
+              <div className="grid grid-cols-3 gap-4 place-items-center">
+                <button
+                  onClick={onGoalsClick}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95 bg-foreground/5 backdrop-blur-xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(255,255,255,0.05)] border border-foreground/10">
+                    <WalletIcon size={24} strokeWidth={2} className="text-foreground/70 group-hover:text-foreground transition-colors" />
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/40 group-hover:text-foreground/70 transition-colors">Goals</span>
+                </button>
+                <button
+                  onClick={onDebtClick}
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95 bg-foreground/5 backdrop-blur-xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(255,255,255,0.05)] border border-foreground/10">
+                    <ExternalLink size={24} strokeWidth={2} className="text-foreground/70 group-hover:text-foreground transition-colors" />
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/40 group-hover:text-foreground/70 transition-colors">Debt</span>
+                </button>
+                <button
+                  className="flex flex-col items-center gap-2 group"
+                >
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95 bg-foreground/5 backdrop-blur-xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(255,255,255,0.05)] border border-foreground/10">
+                    <BarChart3 size={24} strokeWidth={2} className="text-foreground/70 group-hover:text-foreground transition-colors" />
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/40 group-hover:text-foreground/70 transition-colors">Analytics</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Spent Today Card */}
+            <SpentTodayCard
+              spentToday={spentToday}
+              weeklyBudget={weeklyBudget}
+              weeklySpent={weeklySpent}
+              largestExpenseLabel={largestExpenseLabel}
+              transactionsToday={todayTxns.length}
+              currencySymbol="₱"
+            />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-6">
+                <p className="font-display font-bold text-lg text-foreground">Recent Transactions</p>
+                <button
+                  onClick={onHistoryClick}
+                  className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
+                >
+                  See all
+                </button>
+              </div>
+              <div className="-mx-2">
+                <TransactionTable transactions={transactions.slice(-5).reverse()} wallets={wallets} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -227,41 +281,48 @@ export default function Dashboard({
 
               <div className="col-span-12 lg:col-span-6 flex flex-col gap-3">
                 {/* Goal Card */}
-                <div className={`p-4 flex flex-col justify-between group rounded-[2.5rem] border transition-colors duration-300 flex-1 ${isDark ? 'glass-card-dark' : 'bg-white border-slate-200 shadow-sm'}`}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${isDark ? 'text-muted-foreground' : 'text-slate-400'}`}>Goals</p>
-                      <h4 className={`text-base font-bold ${isDark ? 'text-white/90' : 'text-slate-900'}`}>{firstGoal?.name || 'Savings Goal'}</h4>
+                <div 
+                  onClick={onGoalsClick}
+                  className={`p-6 flex flex-col justify-between group rounded-[2.5rem] border transition-all duration-300 flex-1 cursor-pointer hover:shadow-lg ${isDark ? 'glass-card-dark bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white border-slate-100 shadow-sm hover:border-slate-200'}`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isDark ? 'bg-indigo-500/20 text-indigo-300' : 'bg-[#f0f0ff] text-indigo-500'}`}>
+                      <WalletIcon size={22} className={isDark ? 'opacity-80' : ''} />
                     </div>
-                    <span className={`text-[10px] font-bold tabular-nums ${isDark ? 'text-white/20' : 'text-slate-300'}`}>
-                      {firstGoal ? formatCurrency(firstGoal.target) : '₱0'}
+                    <div className="min-w-0">
+                      <h4 className={`text-base font-bold truncate ${isDark ? 'text-white/90' : 'text-slate-900'}`}>{firstGoal?.name || 'Savings Goal'}</h4>
+                      <p className={`text-[11px] font-bold tracking-tight ${isDark ? 'text-white/30' : 'text-slate-400/80'}`}>
+                        {firstGoal?.schedule && firstGoal?.customAmount
+                          ? `${firstGoal.schedule} saving : ${formatCurrency(firstGoal.customAmount)}`
+                          : 'Plan your next milestone'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-end mt-4 mb-2">
+                    <span className={`text-xl font-display font-black tracking-tight tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                      {formatCurrency(firstGoal?.saved || 0)}
+                    </span>
+                    <span className={`text-[11px] font-black uppercase tracking-wider ${isDark ? 'text-white/20' : 'text-slate-400'}`}>
+                      Target {formatCurrency(firstGoal?.target || 0)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                      <WalletIcon size={20} />
+                  <div className="relative w-full">
+                    <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-white/5' : 'bg-slate-100/50'}`}>
+                      <div
+                        className="h-full bg-gradient-to-r from-[#a78bfa] to-[#f472b6] transition-all duration-1000"
+                        style={{ width: `${Math.min(100, Math.round((firstGoal?.saved || 0) / (firstGoal?.target || 1) * 100))}%` }}
+                      />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-baseline">
-                        <span className={`text-2xl font-display font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                          {formatCurrency(firstGoal?.saved || 0).replace(/[^\d.,]/g, '')}
-                        </span>
-                        <span className={`text-[10px] font-bold ${isDark ? 'text-muted-foreground/40' : 'text-slate-400'}`}>
-                          {formatCurrency(firstGoal?.saved || 0)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={`flex justify-between items-center pt-2 border-t ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                    <span className="text-[10px] font-bold text-emerald-500">{Math.round((firstGoal?.saved || 0) / (firstGoal?.target || 1) * 100)}% progress</span>
-                    <ArrowRight size={14} className={`transition-all group-hover:translate-x-1 ${isDark ? 'text-white/20 group-hover:text-white' : 'text-slate-300 group-hover:text-slate-900'}`} />
                   </div>
                 </div>
 
                 {/* Debt Card */}
-                <div className={`p-4 flex flex-col justify-between group rounded-[2.5rem] border transition-colors duration-300 flex-1 ${isDark ? 'glass-card-dark' : 'bg-white border-slate-200 shadow-sm'}`}>
+                <div 
+                  onClick={onDebtClick}
+                  className={`p-4 flex flex-col justify-between group rounded-[2.5rem] border transition-colors duration-300 flex-1 cursor-pointer hover:shadow-lg ${isDark ? 'glass-card-dark hover:bg-white/10' : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'}`}
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <p className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${isDark ? 'text-muted-foreground' : 'text-slate-400'}`}>Debt</p>

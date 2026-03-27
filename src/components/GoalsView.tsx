@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Plus, ChevronLeft, Trash2, Wallet as WalletIcon, ReceiptText, Calendar, CreditCard, Lightbulb, X, ArrowUpRight } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Plus, ChevronLeft, Trash2, Wallet as WalletIcon, ReceiptText, Calendar, CreditCard, X, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from './GlassCard';
 import { Goal, Wallet, formatCurrency, generateId, GoalPayment, getWalletIcon } from '@/lib/store';
@@ -154,54 +155,54 @@ export default function GoalsView({ goals, wallets, onUpdate, onUpdateWallets, o
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {(() => {
-              const sorted = [...activeHistoryGoal.payments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-              const maxAmt = Math.max(...sorted.map(p => p.amount));
-              let latestFound = false;
+                const sorted = [...activeHistoryGoal.payments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                const maxAmt = Math.max(...sorted.map(p => p.amount));
+                let latestFound = false;
 
-              return sorted.map((p, idx) => {
-                const isLatest = !latestFound;
-                if (isLatest) latestFound = true;
-                const isLargest = p.amount === maxAmt && p.amount > 0;
-                const w = wallets.find(w => w.id === p.walletId);
+                return sorted.map((p, idx) => {
+                  const isLatest = !latestFound;
+                  if (isLatest) latestFound = true;
+                  const isLargest = p.amount === maxAmt && p.amount > 0;
+                  const w = wallets.find(w => w.id === p.walletId);
 
-                return (
-                  <GlassCard key={p.id} className="p-4 flex flex-col gap-4 relative bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-                    {/* Top Row: Date (Left) & Account (Right) */}
-                    <div className="flex flex-wrap justify-between items-start gap-4">
-                      {/* DATE */}
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Date & Time</p>
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <p className="text-base font-bold text-foreground leading-none">{new Date(p.date).toLocaleDateString()}</p>
-                          {isLatest && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded pl-1 pr-1 bg-[#4ade80]/20 text-[#4ade80] leading-none text-nowrap">Latest</span>}
-                          {isLargest && !isLatest && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded pl-1 pr-1 bg-blue-500/20 text-blue-400 leading-none text-nowrap">Largest</span>}
+                  return (
+                    <GlassCard key={p.id} className="p-4 flex flex-col gap-4 relative bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+                      {/* Top Row: Date (Left) & Account (Right) */}
+                      <div className="flex flex-wrap justify-between items-start gap-4">
+                        {/* DATE */}
+                        <div>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Date & Time</p>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <p className="text-base font-bold text-foreground leading-none">{new Date(p.date).toLocaleDateString()}</p>
+                            {isLatest && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded pl-1 pr-1 bg-[#4ade80]/20 text-[#4ade80] leading-none text-nowrap">Latest</span>}
+                            {isLargest && !isLatest && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded pl-1 pr-1 bg-blue-500/20 text-blue-400 leading-none text-nowrap">Largest</span>}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground font-medium leading-none">{new Date(p.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                         </div>
-                        <p className="text-[11px] text-muted-foreground font-medium leading-none">{new Date(p.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                      </div>
 
-                      {/* ACCOUNT */}
-                      <div className="text-right">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Account</p>
-                        <div className="flex items-center justify-end gap-1.5">
-                          <span className="opacity-80 text-foreground">{w ? getWalletIcon(w.type, 14) : <WalletIcon size={14} />}</span>
-                          <p className="text-sm font-bold text-foreground truncate">{w?.name || 'Unknown'}</p>
+                        {/* ACCOUNT */}
+                        <div className="text-right">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Account</p>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span className="opacity-80 text-foreground">{w ? getWalletIcon(w.type, 14) : <WalletIcon size={14} />}</span>
+                            <p className="text-sm font-bold text-foreground truncate">{w?.name || 'Unknown'}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Bottom Row: Amount (Left) & Trash (Right) */}
-                    <div className="flex flex-wrap justify-between items-end border-t border-zinc-100 dark:border-white/5 pt-3">
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Amount</p>
-                        <p className="text-xl font-bold text-[#4ade80] tabular-nums leading-none block">{formatCurrency(p.amount)}</p>
+                      {/* Bottom Row: Amount (Left) & Trash (Right) */}
+                      <div className="flex flex-wrap justify-between items-end border-t border-zinc-100 dark:border-white/5 pt-3">
+                        <div>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Amount</p>
+                          <p className="text-xl font-bold text-[#4ade80] tabular-nums leading-none block">{formatCurrency(p.amount)}</p>
+                        </div>
+                        <button onClick={() => handleDeletePayment(activeHistoryGoal.id, p.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/40 hover:text-rose-500 hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                      <button onClick={() => handleDeletePayment(activeHistoryGoal.id, p.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground/40 hover:text-rose-500 hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </GlassCard>
-                );
-              });
+                    </GlassCard>
+                  );
+                });
               })()}
             </div>
           )}
@@ -396,166 +397,158 @@ export default function GoalsView({ goals, wallets, onUpdate, onUpdateWallets, o
         </div>
       </div>
 
-      <AnimatePresence>
-        {(showAdd || showAllocate || showHistory) && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => { setShowAdd(false); setShowAllocate(false); setShowHistory(false); }}
-              className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm"
-            />
-            {/* ADD MODAL */}
-            {showAdd && (
-              <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 pointer-events-none">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="w-full max-w-sm p-6 rounded-[2rem] glass-liquid border border-white/10 shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"
-                >
-                  <h3 className="font-display font-bold text-foreground text-lg mb-4">New Goal</h3>
-                  <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
-                    <input type="text" placeholder="Goal name" value={name} onChange={e => { setName(e.target.value); setError(''); }} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" />
-                    <input type="number" placeholder="Target amount" value={target} onChange={e => { setTarget(e.target.value); setError(''); }} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" />
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Due Date</label>
-                      <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5 [color-scheme:dark]" />
+      {createPortal(
+        <AnimatePresence>
+          {(showAdd || showAllocate) && (
+            <div key="goal-modal-container" className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none">
+              <motion.div
+                key="goal-backdrop"
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }}
+                onClick={() => { setShowAdd(false); setShowAllocate(false); }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+              />
+              
+              {showAdd && (
+                <div key="goal-add-wrapper" className="fixed inset-0 flex items-center justify-center md:p-4 pointer-events-none z-10">
+                  <motion.div
+                    key="goal-add-modal"
+                    initial={{ opacity: 0, y: '100%' }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: '100%' }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    className="fixed inset-0 md:relative md:inset-auto w-full h-full md:w-full md:h-auto md:max-w-sm bg-background md:bg-background/80 md:backdrop-blur-2xl md:rounded-[3rem] border-none md:border md:border-foreground/5 shadow-2xl overflow-hidden flex flex-col md:max-h-[90vh] pointer-events-auto"
+                  >
+                    <div className="flex items-center justify-between px-8 py-8 pb-4 shrink-0">
+                      <h3 className="font-display font-black text-foreground text-xl">New Goal</h3>
+                      <button onClick={() => setShowAdd(false)} className="p-2 rounded-full hover:bg-foreground/5 text-foreground transition-colors">
+                        <X size={20} />
+                      </button>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Payment Schedule (Optional)</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['Weekly', 'Bi-weekly', 'Monthly', 'Custom'].map(f => (
-                          <button key={f} onClick={() => setSchedule(f as Goal['schedule'])} className={`py-2 rounded-xl text-xs font-bold border transition-all ${schedule === f ? 'bg-[#4ade80]/10 border-[#4ade80]/30 text-[#4ade80]' : 'bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10'}`}>
-                            {f}
-                          </button>
-                        ))}
+                    <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-6 custom-scrollbar no-scrollbar">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Goal Name</label>
+                        <input type="text" placeholder="e.g. Dream House" value={name} onChange={e => { setName(e.target.value); setError(''); }} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all" />
                       </div>
-                    </div>
 
-                    {schedule === 'Custom' && (
-                      <input type="number" placeholder="Custom payment amount" value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" />
-                    )}
-
-                    {newGoalCalcs && (
-                      <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-2">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Suggested</span>
-                          <span className="font-bold text-foreground">{formatCurrency(newGoalCalcs.suggested)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Periods</span>
-                          <span className="font-bold text-foreground">{newGoalCalcs.periods}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">1st Payment</span>
-                          <span className="font-bold text-[#4ade80]">{new Date(newGoalCalcs.nextPay).toLocaleDateString()}</span>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Target Amount</label>
+                        <div className="relative">
+                          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground/30 font-bold text-lg">₱</span>
+                          <input type="number" placeholder="0.00" value={target} onChange={e => { setTarget(e.target.value); setError(''); }} className="w-full py-4 pl-12 pr-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all tabular-nums" />
                         </div>
                       </div>
-                    )}
 
-                    <input type="number" placeholder="Starting saved (optional)" value={startingSaved} onChange={e => { setStartingSaved(e.target.value); setError(''); }} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" />
-
-                    {error && <p className="text-[11px] font-bold text-rose-500 px-1">{error}</p>}
-                  </div>
-
-                  <div className="flex gap-3 pt-4 mt-2 border-t border-white/5 shrink-0">
-                    <button onClick={() => setShowAdd(false)} className="flex-1 py-3 rounded-xl bg-foreground/5 text-muted-foreground text-sm font-bold transition-colors">Cancel</button>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={handleAdd} className="flex-1 py-3 rounded-xl bg-[#4ade80] text-black text-sm font-bold shadow-lg shadow-emerald-500/10">Create</motion.button>
-                  </div>
-                </motion.div>
-              </div>
-            )}
-
-            {/* ALLOCATE MODAL */}
-            {showAllocate && (
-              <div className="fixed inset-x-0 bottom-0 z-[130] p-4 pointer-events-none pb-8 sm:pb-4 sm:flex sm:items-center sm:justify-center">
-                <motion.div
-                  initial={{ opacity: 0, y: '100%' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '100%' }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="w-full max-w-sm p-6 rounded-[2rem] glass-liquid border border-white/10 shadow-2xl pointer-events-auto sm:mx-auto"
-                >
-                  <h3 className="font-display font-bold text-foreground text-lg mb-2">Allocate Funds</h3>
-                  {selectedGoalId && (
-                    <div className="bg-white/5 p-3 rounded-xl border border-white/5 mb-4 space-y-2">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Goal target</span>
-                        <span className="font-bold">{formatCurrency(goals.find(g => g.id === selectedGoalId)?.target || 0)}</span>
+                      <div className="grid grid-cols-1 gap-6">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Due Date</label>
+                          <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-sm font-bold outline-none border border-transparent focus:border-primary/20 transition-all [color-scheme:light] dark:[color-scheme:dark]" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Payment Schedule</label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Weekly', 'Bi-weekly', 'Monthly', 'Custom'].map(f => (
+                              <button key={f} onClick={() => setSchedule(f as Goal['schedule'])} className={`py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${schedule === f ? 'bg-primary text-primary-foreground border-transparent shadow-lg shadow-primary/20' : 'bg-foreground/5 border-transparent text-muted-foreground hover:bg-foreground/10'}`}>
+                                {f}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Remaining</span>
-                        <span className="font-bold text-[#4ade80]">{formatCurrency((goals.find(g => g.id === selectedGoalId)?.target || 0) - (goals.find(g => g.id === selectedGoalId)?.saved || 0))}</span>
+
+                      {schedule === 'Custom' && (
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Custom Payment</label>
+                          <input type="number" placeholder="Amount per period" value={customAmount} onChange={e => setCustomAmount(e.target.value)} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all" />
+                        </div>
+                      )}
+
+                      {newGoalCalcs && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-5 bg-primary/5 border border-primary/10 rounded-[2rem] space-y-3">
+                          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                            <span className="text-muted-foreground">Suggested Pay</span>
+                            <span className="text-primary">{formatCurrency(newGoalCalcs.suggested)}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                            <span className="text-muted-foreground">Total Periods</span>
+                            <span className="text-foreground">{newGoalCalcs.periods}</span>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 ml-1">Initial Savings (Optional)</label>
+                        <input type="number" placeholder="0.00" value={startingSaved} onChange={e => { setStartingSaved(e.target.value); setError(''); }} className="w-full py-4 px-6 rounded-[2rem] bg-foreground/5 text-foreground text-base font-bold outline-none border border-transparent focus:border-primary/20 transition-all" />
                       </div>
+                      {error && <p className="text-[11px] font-black uppercase tracking-widest text-rose-500 text-center">{error}</p>}
                     </div>
-                  )}
 
-                  <div className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Select Account</label>
-                      <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-                        {wallets.map(w => (
-                          <button key={w.id} onClick={() => setSelectedWalletId(w.id)} className={`flex justify-between items-center p-3 rounded-xl border transition-all ${selectedWalletId === w.id ? 'bg-[#4ade80]/10 border-[#4ade80]/30 ring-1 ring-[#4ade80]/20' : 'bg-white/5 border-white/5'}`}>
-                            <div className="flex items-center gap-3">
-                              <span className="text-lg opacity-80">{getWalletIcon(w.type, 18)}</span>
-                              <div className="text-left">
-                                <p className="text-sm font-bold text-foreground">{w.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{w.type}</p>
-                              </div>
-                            </div>
-                            <p className="text-sm font-bold text-foreground tracking-tight">{formatCurrency(w.balance)}</p>
-                          </button>
-                        ))}
+                    <div className="px-8 py-8 pt-0 mt-auto shrink-0">
+                      <motion.button whileTap={{ scale: 0.98 }} onClick={handleAdd} className="w-full py-5 rounded-[2rem] bg-[#4ade80] text-[#052e16] text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">
+                        Create Goal
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+
+              {showAllocate && (
+                <div key="goal-allocate-wrapper" className="fixed inset-x-0 bottom-0 p-4 pointer-events-none pb-8 sm:pb-4 sm:flex sm:items-center sm:justify-center z-10 text-left">
+                  <motion.div
+                    key="goal-allocate-modal"
+                    initial={{ opacity: 0, y: '100%' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: '100%' }} transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                    className="w-full max-w-sm p-6 rounded-[2rem] glass-liquid border border-white/10 shadow-2xl pointer-events-auto sm:mx-auto"
+                  >
+                    <h3 className="font-display font-bold text-foreground text-lg mb-2">Allocate Funds</h3>
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Select Account</label>
+                        <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                          {wallets.map(w => (
+                            <button key={w.id} onClick={() => setSelectedWalletId(w.id)} className={`flex justify-between items-center p-3 rounded-xl border transition-all ${selectedWalletId === w.id ? 'bg-[#4ade80]/10 border-[#4ade80]/30 ring-1 ring-[#4ade80]/20' : 'bg-white/5 border-white/5'}`}>
+                              <div className="flex items-center gap-3"><span className="text-lg opacity-80">{getWalletIcon(w.type, 18)}</span><div className="text-left"><p className="text-sm font-bold text-foreground">{w.name}</p><p className="text-[10px] text-muted-foreground">{w.type}</p></div></div>
+                              <p className="text-sm font-bold text-foreground tracking-tight">{formatCurrency(w.balance)}</p>
+                            </button>
+                          ))}
+                        </div>
                       </div>
+                      <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Payment Date</label><input type="date" value={paymentDate} onChange={e => setPaymentDate(e.target.value)} className="w-full py-3 px-4 rounded-xl bg-foreground/5 text-foreground text-sm font-semibold outline-none border border-white/5 [color-scheme:dark]" /></div>
+                      <div className="space-y-1.5"><label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Amount to Allocate</label><input type="number" placeholder="0.00" value={allocateAmt} onChange={e => setAllocateAmt(e.target.value)} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" /></div>
                     </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Payment Date</label>
-                      <input type="date" value={paymentDate} onChange={e => setPaymentDate(e.target.value)} className="w-full py-3 px-4 rounded-xl bg-foreground/5 text-foreground text-sm font-semibold outline-none border border-white/5 [color-scheme:dark]" />
+                    <div className="flex gap-3 pt-4 mt-4 border-t border-white/5">
+                      <button onClick={() => setShowAllocate(false)} className="flex-1 py-3 rounded-xl bg-foreground/5 text-muted-foreground text-sm font-bold">Cancel</button>
+                      <motion.button whileTap={{ scale: 0.96 }} onClick={handleAllocate} className="flex-1 py-3 rounded-xl bg-[#4ade80] text-black text-sm font-bold shadow-lg shadow-emerald-500/10 transition-all">Confirm</motion.button>
                     </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Amount to Allocate</label>
-                      <input type="number" placeholder="0.00" value={allocateAmt} onChange={e => setAllocateAmt(e.target.value)} className="w-full py-3.5 px-4 rounded-xl bg-foreground/5 text-foreground text-base font-semibold outline-none border border-white/5" />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-4 mt-4 border-t border-white/5">
-                    <button onClick={() => setShowAllocate(false)} className="flex-1 py-3 rounded-xl bg-foreground/5 text-muted-foreground text-sm font-bold">Cancel</button>
-                    <motion.button whileTap={{ scale: 0.96 }} onClick={handleAllocate} disabled={!allocateAmt || parseFloat(allocateAmt) <= 0 || parseFloat(allocateAmt) > (wallets.find(w => w.id === selectedWalletId)?.balance || 0)} className="flex-1 py-3 rounded-xl bg-[#4ade80] text-black text-sm font-bold shadow-lg shadow-emerald-500/10 disabled:opacity-30 transition-all">
-                      Confirm Payment
-                    </motion.button>
-                  </div>
-                </motion.div>
-              </div>
-            )}
-
-
-          </>
-        )}
-      </AnimatePresence>
+                  </motion.div>
+                </div>
+              )}
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       <AnimatePresence>
-        {showCelebration && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        {showCelebration && createPortal(
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-            <motion.div 
-               initial={{ opacity: 0, scale: 0.8, y: 50 }} 
-               animate={{ opacity: 1, scale: 1, y: 0 }} 
-               exit={{ opacity: 0, scale: 0.8, y: -50 }}
-               className="relative glass-liquid rounded-[2rem] p-6 max-w-md w-[85vw] border border-white/20 shadow-2xl flex flex-col pt-8 space-y-6"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8, y: -50 }}
+              className="relative glass-liquid rounded-[2rem] p-6 max-w-md w-[85vw] border border-white/20 shadow-2xl flex flex-col pt-8 space-y-6"
             >
-               <div className="flex items-center gap-5">
-                 <img src={squireeCelebrate} alt="Celebrate" className="w-[100px] h-auto object-contain drop-shadow-2xl" />
-                 <div className="flex-1 text-left">
-                   <h2 className="font-display text-2xl font-black text-foreground mb-1 leading-tight">Goal<br/>Reached!</h2>
-                   <p className="text-xs text-muted-foreground leading-relaxed">
-                     Congratulations! You've completed your <span className="text-foreground font-bold">{showCelebration}</span> goal.
-                   </p>
-                 </div>
-               </div>
-               <button onClick={() => setShowCelebration(null)} className="glass-button w-full py-4 text-black bg-[#4ade80] font-bold text-sm shadow-lg shadow-emerald-500/20">
-                 Awesome!
-               </button>
+              <div className="flex items-center gap-5">
+                <img src={squireeCelebrate} alt="Celebrate" className="w-[100px] h-auto object-contain drop-shadow-2xl" />
+                <div className="flex-1 text-left">
+                  <h2 className="font-display text-2xl font-black text-foreground mb-1 leading-tight">Goal<br />Reached!</h2>
+                  <p className="text-xs text-muted-foreground">Congratulations! You've completed your <span className="text-foreground font-bold">{showCelebration}</span> goal.</p>
+                </div>
+              </div>
+              <button onClick={() => setShowCelebration(null)} className="glass-button w-full py-4 text-black bg-[#4ade80] font-bold text-sm">Awesome!</button>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>

@@ -66,7 +66,7 @@ export default function SpentTodayCard({
         </div>
 
         {/* Progress Bar */}
-        <div className="h-3 w-full rounded-full bg-muted/50 overflow-hidden mb-3">
+        <div className="h-3 w-full rounded-full bg-black/10 overflow-hidden mb-3">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(spentTodayPct, 100)}%` }}
@@ -83,32 +83,6 @@ export default function SpentTodayCard({
           </span>
         </div>
 
-        {/* Mini Stat Tiles */}
-        <div className="grid grid-cols-2 gap-4 pt-4 mt-auto border-t border-border/10">
-          {/* Tile 1: Largest Expense */}
-          <div className="glass-frosted border border-border/10 bg-muted/5 rounded-2xl p-4 flex flex-col justify-center gap-1 group/tile hover:bg-muted/10 transition-all hover:scale-[1.02] active:scale-95 min-h-[72px]">
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-60">Largest</span>
-              <ArrowUpRight size={12} className="text-muted-foreground/30" />
-            </div>
-            <div className="flex flex-col">
-              <span className={`font-bold text-foreground truncate capitalize ${getDynamicFontSize(cat)}`}>{cat}</span>
-              {amt && <span className="text-[10px] font-black text-primary/80 tabular-nums">{amt}</span>}
-            </div>
-          </div>
-
-          {/* Tile 2: Transactions */}
-          <div className="glass-frosted border border-border/10 bg-muted/5 rounded-2xl p-4 flex flex-col justify-center gap-1 group/tile hover:bg-muted/10 transition-all hover:scale-[1.02] active:scale-95 min-h-[72px]">
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-60">Activity</span>
-              <Activity size={12} className="text-muted-foreground/30" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-foreground font-display">{transactionsToday} today</span>
-              <span className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Log entries</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

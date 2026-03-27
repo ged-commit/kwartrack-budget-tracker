@@ -34,7 +34,7 @@ export default function PlanningView({
   ] as const;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
       {/* Top Segmented Control */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-6 pt-8 pb-4">
         <div className="flex items-center gap-4 mb-4">
