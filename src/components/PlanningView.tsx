@@ -36,14 +36,14 @@ export default function PlanningView({
   return (
     <div className="min-h-screen bg-transparent flex flex-col">
       {/* Top Segmented Control */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-6 pt-8 pb-4">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border px-8 pt-10 pb-4">
         <div className="flex items-center gap-4 mb-4">
           {onBack && (
             <button onClick={onBack} className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center text-foreground active:scale-90 transition-transform">
               <ChevronLeft size={20} />
             </button>
           )}
-          <h1 className="font-display text-2xl font-black text-foreground">Planning</h1>
+          <h1 className="font-display text-2xl font-black text-foreground tracking-tighter">Planning</h1>
         </div>
 
         <div className="flex p-1 rounded-2xl bg-foreground/5 border border-foreground/5">

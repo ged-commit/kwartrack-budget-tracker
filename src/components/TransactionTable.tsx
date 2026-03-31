@@ -27,7 +27,7 @@ export default function TransactionTable({ transactions, wallets }: TransactionT
               <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[15%]">Type</th>
               <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[20%]">Category</th>
               <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[25%]">Account Type</th>
-              <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[20%] text-right">Price</th>
+              <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[20%] text-right">Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/5">
@@ -40,7 +40,7 @@ export default function TransactionTable({ transactions, wallets }: TransactionT
               const formattedTime = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 
               return (
-                <motion.tr 
+                <motion.tr
                   key={t.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}

@@ -212,12 +212,22 @@ export default function GoalsView({ goals, wallets, onUpdate, onUpdateWallets, o
   }
 
   return (
-    <div className="px-6 pt-8 md:pt-12 pb-28 space-y-8 max-w-lg lg:max-w-7xl mx-auto">
-      {/* Desktop Header */}
-      <div className="hidden lg:block mb-4">
-        <h1 className="font-display text-4xl font-black text-foreground mb-2">Goals</h1>
-        <p className="text-muted-foreground font-medium">Plan and save for your future milestones.</p>
+    <div className="w-full px-8 pt-6 md:pt-10 pb-28 space-y-8">
+      {/* Desktop Header Redesign */}
+      <div className="hidden lg:flex items-end justify-between mb-8 border-b border-foreground/5 pb-8">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-8 bg-[#4ade80] rounded-full shadow-[0_0_15px_#4ade8066]" />
+            <h1 className="font-display text-5xl font-black text-foreground tracking-tighter">Your Goals</h1>
+          </div>
+          <p className="text-muted-foreground font-medium text-lg max-w-md">Visualize your future and track every peso toward your milestones.</p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Total Target Value</p>
+          <p className="font-display text-3xl font-bold text-foreground tabular-nums">{formatCurrency(totalTarget)}</p>
+        </div>
       </div>
+
       <div className="flex items-center gap-4 lg:hidden">
         {onBack && (
           <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-foreground">
@@ -227,52 +237,85 @@ export default function GoalsView({ goals, wallets, onUpdate, onUpdateWallets, o
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#4ade80]">Personal Goals</p>
           <h1 className="font-display text-3xl font-bold text-foreground">Save for what matters</h1>
-          <p className="text-sm text-muted-foreground leading-snug">Track plans like a house, a car, or a trip and move money into them.</p>
         </div>
       </div>
 
-      <div className="lg:grid lg:grid-cols-12 lg:gap-10">
-        <div className="lg:col-span-5 space-y-8">
-          <div className="flex justify-between items-center bg-[#4ade80]/10 p-5 rounded-[2rem] border border-[#4ade80]/20">
-            <div>
-              <p className="text-sm font-bold text-foreground">Have a new plan?</p>
-              <p className="text-[10px] text-muted-foreground font-medium">Start saving for your next dream.</p>
+      <div className="lg:grid lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-5 space-y-10">
+          <div className="group relative overflow-hidden bg-[#4ade80]/10 p-6 rounded-[2.5rem] border border-[#4ade80]/20 transition-all hover:bg-[#4ade80]/15">
+            <div className="relative z-10 flex justify-between items-center">
+              <div>
+                <p className="text-lg font-bold text-foreground mb-1">Ready for a new milestone?</p>
+                <p className="text-xs text-muted-foreground font-medium opacity-80">Start planning your next big achievement today.</p>
+              </div>
+              <button 
+                onClick={() => setShowAdd(true)} 
+                className="glass-button px-6 py-4 text-[#052e16] bg-[#4ade80] text-sm font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all"
+              >
+                <Plus size={18} className="mr-2" /> CREATE
+              </button>
             </div>
-            <button onClick={() => setShowAdd(true)} className="glass-button px-5 py-3 text-[#4ade80] text-sm font-bold shadow-lg shadow-emerald-500/5">
-              <Plus size={16} className="mr-2 inline" /> New goal
-            </button>
+            <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-[#4ade80] opacity-5 blur-[60px]" />
           </div>
 
-          <GlassCard className="p-7 rounded-[2.5rem]">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-1.5">Total saved across goals</p>
-                <p className="font-display text-4xl font-bold text-foreground tabular-nums tracking-tight">{formatCurrency(totalSaved)}</p>
+          <div className="glass-liquid p-8 rounded-[3rem] relative overflow-hidden group">
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-2">Total Savings Progress</p>
+                  <div className="flex items-baseline gap-4 mb-2">
+                    <p className="font-display text-5xl font-bold text-foreground tabular-nums tracking-tighter leading-none">
+                      {formatCurrency(totalSaved)}
+                    </p>
+                    <div className="flex flex-col items-start">
+                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 leading-none mb-1">To Go</p>
+                       <p className="text-sm font-bold text-muted-foreground tabular-nums leading-none">
+                        {formatCurrency(Math.max(totalTarget - totalSaved, 0))}
+                       </p>
+                    </div>
+                  </div>
+                  <p className="text-sm font-bold text-primary flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    {((totalSaved / (totalTarget || 1)) * 100).toFixed(1)}% of total target
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative h-4 rounded-full bg-foreground/5 overflow-hidden mb-10 shadow-inner">
+                <motion.div 
+                  className="absolute inset-y-0 left-0 bg-primary shadow-[0_0_20px_rgba(16,185,129,0.5)] rounded-full" 
+                  initial={{ width: 0 }} 
+                  animate={{ width: `${(totalSaved / (totalTarget || 1)) * 100}%` }} 
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_2s_infinite]" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="bg-foreground/5 p-5 rounded-3xl border border-white/5 group-hover:bg-foreground/8 transition-colors">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1 leading-none">Active Goals</p>
+                  <p className="text-3xl font-display font-bold text-foreground leading-none">{activeGoals}</p>
+                </div>
+                <div className="bg-foreground/5 p-5 rounded-3xl border border-white/5 group-hover:bg-foreground/8 transition-colors">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1 leading-none">Goals Completed</p>
+                  <p className="text-3xl font-display font-bold text-foreground leading-none">{completedGoals}</p>
+                </div>
               </div>
             </div>
-            <div className="h-2.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden mb-8">
-              <motion.div className="h-full bg-[#4ade80] shadow-[0_0_15px_rgba(74,222,128,0.3)]" initial={{ width: 0 }} animate={{ width: `${(totalSaved / (totalTarget || 1)) * 100}%` }} />
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground opacity-50 mb-1">Active</p>
-                <p className="text-2xl font-bold text-foreground">{activeGoals}</p>
-              </div>
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground opacity-50 mb-1">Completed</p>
-                <p className="text-2xl font-bold text-foreground">{completedGoals}</p>
-              </div>
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground opacity-50 mb-1">Targeted</p>
-                <p className="text-2xl font-bold text-foreground">{totalTarget > 1000 ? `${(totalTarget / 1000).toFixed(0)}k` : formatCurrency(totalTarget)}</p>
-              </div>
-            </div>
-          </GlassCard>
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none" />
+          </div>
         </div>
 
-        <div className="lg:col-span-7 mt-8 lg:mt-0">
-          <p className="hidden lg:block text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4 px-2">Active Goals</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="lg:col-span-7 mt-12 lg:mt-0 space-y-6">
+          <div className="flex items-center justify-between px-2 mb-2">
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Active Milestones</p>
+            <div className="flex items-center gap-4">
+              <span className="text-[11px] font-bold text-muted-foreground/60">Sort by: Remaining</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {goals.filter(g => !g.completed).map(g => {
               const pct = Math.min((g.saved / g.target) * 100, 100);
               const left = Math.max(g.target - g.saved, 0);
@@ -283,119 +326,118 @@ export default function GoalsView({ goals, wallets, onUpdate, onUpdateWallets, o
 
               if (g.deadline) {
                 daysRemaining = Math.ceil((new Date(g.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                if (daysRemaining > 30) { daysLeftClass = 'text-[#4ade80]'; daysLeftText = `${daysRemaining}d remaining`; }
-                else if (daysRemaining >= 0) { daysLeftClass = 'text-amber-500'; daysLeftText = `${daysRemaining}d remaining`; }
+                if (daysRemaining > 30) { daysLeftClass = 'text-[#4ade80]'; daysLeftText = `${daysRemaining}d left`; }
+                else if (daysRemaining >= 0) { daysLeftClass = 'text-amber-500'; daysLeftText = `${daysRemaining}d left`; }
                 else { daysLeftClass = 'text-rose-500'; daysLeftText = 'Overdue'; }
               }
 
-              let nextPayText = '';
               let suggestionText = '';
-
               if (g.schedule && g.deadline && !g.completed && left > 0) {
-                let nextPay = new Date();
-                if (g.schedule === 'Weekly') nextPay.setDate(nextPay.getDate() + 7);
-                else if (g.schedule === 'Bi-weekly') nextPay.setDate(nextPay.getDate() + 14);
-                else if (g.schedule === 'Monthly') nextPay.setDate(nextPay.getDate() + 30);
-                else if (g.schedule === 'Custom') nextPay.setDate(nextPay.getDate() + 30);
-
-                const dDate = new Date(g.deadline);
-                if (nextPay > dDate) nextPay = dDate;
-                nextPayText = nextPay.toLocaleDateString();
-
                 let periods = 1;
                 if (g.schedule === 'Weekly') periods = Math.ceil(Math.max(daysRemaining, 1) / 7);
                 else if (g.schedule === 'Bi-weekly') periods = Math.ceil(Math.max(daysRemaining, 1) / 14);
                 else if (g.schedule === 'Monthly') periods = Math.ceil(Math.max(daysRemaining, 1) / 30);
                 else if (g.schedule === 'Custom' && g.customAmount && g.customAmount > 0) periods = Math.ceil(left / g.customAmount);
                 periods = Math.max(periods, 1);
-
                 const suggested = g.schedule === 'Custom' ? (g.customAmount || 0) : left / periods;
-                suggestionText = `💡 Pay ${formatCurrency(suggested)} / period · ${periods} payments to go`;
+                suggestionText = `Suggested: ${formatCurrency(suggested)} / ${g.schedule.replace('-weekly', '')}`;
               }
 
               return (
-                <GlassCard key={g.id} className="p-6 rounded-[2rem] flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start mb-1">
-                      <div>
-                        <h3 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
-                          {g.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground opacity-70">{formatCurrency(g.saved)} saved of {formatCurrency(g.target)}</p>
-                        {g.schedule && (
-                          <span className="inline-block mt-2 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-wider text-foreground">
-                            🔁 {g.schedule}
-                          </span>
-                        )}
+                <div key={g.id} className="glass-liquid p-6 rounded-[2.5rem] border border-white/5 flex flex-col justify-between group hover:border-primary/20 transition-all hover:shadow-2xl hover:shadow-primary/5">
+                  <div className="relative">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-xl font-bold text-foreground">{g.name}</h3>
+                          {g.schedule && (
+                            <span className="px-2 py-0.5 rounded-md bg-foreground/5 text-[9px] font-black uppercase tracking-wider text-muted-foreground border border-white/5">
+                              {g.schedule}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-medium text-muted-foreground/60">{formatCurrency(g.target)} Target</p>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => { setHistoryGoalId(g.id); setShowHistory(true); }} className="relative p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors pointer-events-auto">
-                          <ReceiptText size={16} className="text-muted-foreground" />
+                        <button onClick={() => { setHistoryGoalId(g.id); setShowHistory(true); }} className="relative w-10 h-10 rounded-xl bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center transition-colors">
+                          <ReceiptText size={18} className="text-muted-foreground/60" />
                           {(g.payments?.length || 0) > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#4ade80] text-black text-[9px] font-bold flex items-center justify-center">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-black flex items-center justify-center shadow-lg shadow-primary/20 border-2 border-background">
                               {g.payments?.length}
                             </span>
                           )}
                         </button>
-                        <button onClick={() => handleDelete(g.id)} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-muted-foreground hover:text-rose-500 transition-colors">
-                          <Trash2 size={16} />
+                        <button onClick={() => handleDelete(g.id)} className="w-10 h-10 rounded-xl bg-foreground/5 hover:bg-rose-500/10 hover:text-rose-500 flex items-center justify-center text-muted-foreground/40 transition-colors">
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
 
-                    <div className="my-5">
-                      <div className="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden mb-2.5">
-                        <motion.div className="h-full rounded-full bg-[#4ade80]" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} />
+                    <div className="mb-8">
+                      <div className="flex justify-between items-end mb-2">
+                         <p className="text-3xl font-display font-bold text-foreground tabular-nums tracking-tighter">
+                          {formatCurrency(g.saved).replace('₱', '')}<span className="text-sm text-muted-foreground ml-1">saved</span>
+                        </p>
+                        <p className={`text-[11px] font-black uppercase tracking-widest ${daysLeftClass}`}>
+                          {daysLeftText}
+                        </p>
                       </div>
-                      <div className="flex justify-between items-center tabular-nums">
-                        <p className="text-[10px] font-bold text-muted-foreground opacity-50">{Math.round(pct)}% Complete</p>
-                        <p className="text-[10px] font-bold text-muted-foreground opacity-50">{formatCurrency(left)} remaining</p>
+                      
+                      <div className="h-3 rounded-full bg-foreground/5 overflow-hidden relative shadow-inner">
+                        <motion.div 
+                          className="absolute inset-y-0 left-0 bg-[#4ade80] rounded-full shadow-[0_0_15px_rgba(74,222,128,0.4)]" 
+                          initial={{ width: 0 }} 
+                          animate={{ width: `${pct}%` }} 
+                          transition={{ duration: 0.8 }} 
+                        />
+                      </div>
+                      <div className="flex justify-between mt-2.5">
+                        <span className="text-[10px] font-black text-foreground opacity-30">{Math.round(pct)}% COMPLETE</span>
+                        <span className="text-[10px] font-black text-foreground opacity-30">{formatCurrency(left)} TO GO</span>
                       </div>
                     </div>
 
-                    <div className="space-y-3 mb-6">
-                      {g.deadline && (
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-muted-foreground flex items-center gap-2 opacity-70"><Calendar size={14} /> Due date</span>
-                          <div className="text-right">
-                            <span className="text-foreground font-medium">{new Date(g.deadline).toLocaleDateString()}</span>
-                            <span className={`ml-2 font-black uppercase text-[9px] ${daysLeftClass}`}>({daysLeftText})</span>
-                          </div>
-                        </div>
-                      )}
-                      {nextPayText && (
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-muted-foreground flex items-center gap-2 opacity-70"><CreditCard size={14} /> Next payment</span>
-                          <span className="text-blue-400 font-bold">{nextPayText}</span>
-                        </div>
-                      )}
+                    <div className="space-y-4 mb-8">
                       {suggestionText && (
-                        <div className="mt-3 p-3 rounded-xl bg-white/5 border border-white/5 text-[10px] text-muted-foreground font-medium leading-relaxed">
-                          {suggestionText}
+                        <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <ArrowUpRight size={16} />
+                          </div>
+                          <p className="text-xs font-bold text-primary/80">{suggestionText}</p>
+                        </div>
+                      )}
+                      {g.deadline && (
+                        <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground/60 px-1">
+                          <Calendar size={14} />
+                          <span>Deadline: {new Date(g.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {g.completed ? (
-                    <div className="w-full py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-center text-xs font-bold font-display">
-                      Goal Completed! 🎉
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => { setSelectedGoalId(g.id); setShowAllocate(true); }}
-                      className="glass-button flex items-center justify-center w-full py-3 text-foreground text-sm font-bold gap-2 shadow-xl shadow-black/5"
-                    >
-                      <ArrowUpRight size={18} className="text-[#4ade80]" />
-                      Allocate Funds
-                    </button>
-                  )}
-                </GlassCard>
+                  <button
+                    onClick={() => { setSelectedGoalId(g.id); setShowAllocate(true); }}
+                    className="group relative overflow-hidden w-full py-4 rounded-2xl bg-foreground text-background font-black text-sm uppercase tracking-widest transition-all active:scale-95 hover:shadow-2xl hover:shadow-foreground/10"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                       ALLOCATE <ArrowUpRight size={18} />
+                    </span>
+                    <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 rounded-2xl" />
+                  </button>
+                </div>
               );
             })}
+            
+            {/* Show completed goals toggle or count if any */}
+            {completedGoals > 0 && (
+              <div className="md:col-span-2 py-4 text-center">
+                <p className="text-xs font-bold text-muted-foreground opacity-40">+{completedGoals} completed goals archived</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
 
       {createPortal(
         <AnimatePresence>

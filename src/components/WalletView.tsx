@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Plus, Banknote, Landmark, Trash2, Settings as SettingsIcon, Smartphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, Transaction, AppSettings, formatCurrency, generateId } from '@/lib/store';
@@ -154,7 +154,7 @@ export default function WalletView({
     <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'text-white' : 'text-slate-900'}`}>
 
       {/* ---------------- MOBILE LAYOUT ---------------- */}
-      <div className="lg:hidden pt-8 pb-48 space-y-6 max-w-lg mx-auto overflow-x-hidden w-full">
+      <div className="lg:hidden pt-8 pb-48 space-y-6 w-full px-8">
         <div className="flex justify-between items-center px-8">
           <div>
             <h1 className="font-display text-4xl font-bold text-foreground">Accounts</h1>

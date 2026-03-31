@@ -230,7 +230,7 @@ export default function Dashboard({
                     <p className={`text-xs font-black uppercase tracking-widest mb-2 opacity-60 ${isDark ? 'text-slate-900/60' : 'text-white/60'}`}>Total Balance</p>
                     <div className="flex items-baseline gap-3">
                       <p className={`font-display text-6xl font-black tracking-tight tabular-nums ${isDark ? 'text-slate-900' : 'text-white'}`}>
-                        {formatCurrency(totalBalance).replace(/[^\d.,]/g, '').trim()}
+                        {formatCurrency(totalBalance).replace(/[^-0-9.,]/g, '').trim()}
                       </p>
                       <span className={`text-xl font-bold opacity-40 ${isDark ? 'text-slate-900/40' : 'text-white/40'}`}>PHP</span>
                     </div>
